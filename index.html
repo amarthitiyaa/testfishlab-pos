@@ -2,236 +2,180 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FishLab POS — ระบบจัดการออเดอร์</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#F5F3EE;--surface:#FFFFFF;--surface2:#F0EDE8;
-    --text:#1A1814;--text2:#6B6760;--text3:#A09D99;
-    --accent:#1D4ED8;--accent-light:#EFF3FF;--accent-border:#BFCFFF;
-    --green:#166534;--green-bg:#DCFCE7;--green-border:#BBF7D0;
-    --red:#991B1B;--red-bg:#FEE2E2;--red-border:#FECACA;
-    --amber:#92400E;--amber-bg:#FEF3C7;--amber-border:#FDE68A;
-    --border:#E2DDD6;--border2:#CCC8BF;
-    --radius:10px;--radius-lg:16px;
-    --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
-  }
-  body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
-  
-  /* Layout */
-  .app-shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:56px 1fr;min-height:100vh}
-  .topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100}
-  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:16px 12px;display:flex;flex-direction:column;gap:4px}
-  .main{padding:20px;overflow-y:auto;max-height:calc(100vh - 56px)}
-  
-  /* Topbar */
-  .logo{font-size:16px;font-weight:600;letter-spacing:-0.3px;display:flex;align-items:center;gap:8px}
-  .logo .fish{font-size:20px}
-  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
-  .role-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
-  .role-owner{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
-  .role-staff{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border)}
-  .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
-  
-  /* Sidebar nav */
-  .nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;padding:8px 8px 4px}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.15s;border:none;background:none;width:100%;text-align:left}
-  .nav-item:hover{background:var(--surface2);color:var(--text)}
-  .nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:500}
-  .nav-item i{font-size:16px}
-  .nav-divider{height:1px;background:var(--border);margin:8px 0}
-  
-  /* Page tabs */
-  .page{display:none}
-  .page.active{display:block}
-  
-  /* Section header */
-  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-  .section-title{font-size:18px;font-weight:600;letter-spacing:-0.3px}
-  .section-sub{font-size:13px;color:var(--text2);margin-top:2px}
-  
-  /* Cards */
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow)}
-  .card+.card{margin-top:16px}
-  
-  /* Form elements */
-  label{font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:5px}
-  input,select,textarea{width:100%;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);transition:border 0.15s,box-shadow 0.15s;outline:none;appearance:none;-webkit-appearance:none}
-  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,78,216,0.1)}
-  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6760' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
-  
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .form-grid.cols3{grid-template-columns:1fr 1fr 1fr}
-  .span2{grid-column:span 2}
-  
-  /* Buttons */
-  .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;border:1px solid transparent}
-  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .btn-primary:hover{background:#1641B5;border-color:#1641B5}
-  .btn-ghost{background:transparent;color:var(--text2);border-color:var(--border2)}
-  .btn-ghost:hover{background:var(--surface2);color:var(--text)}
-  .btn-danger{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
-  .btn-sm{padding:5px 12px;font-size:12px}
-  .btn-full{width:100%;justify-content:center}
-  
-  /* Badges */
-  .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px}
-  .badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-  .badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
-  .badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
-  .badge-blue{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border)}
-  .badge-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
-  
-  /* Stats grid */
-  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
-  .stat-label{font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:500}
-  .stat-value{font-size:22px;font-weight:600;letter-spacing:-0.5px;font-family:'IBM Plex Mono',monospace}
-  .stat-sub{font-size:11px;color:var(--text3);margin-top:3px}
-  
-  /* Table */
-  .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{background:var(--surface2);padding:10px 14px;text-align:left;font-weight:500;font-size:11px;color:var(--text2);letter-spacing:0.3px;border-bottom:1px solid var(--border);white-space:nowrap}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:var(--surface2)}
-  .mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
-  
-  /* Channel pills */
-  .ch-store{background:#FEF3C7;color:#78350F;border:1px solid #FDE68A}
-  .ch-line{background:#DCFCE7;color:#14532D;border:1px solid #BBF7D0}
-  .ch-fb{background:#EFF6FF;color:#1E3A5F;border:1px solid #BFDBFE}
-  .ch-grab{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
-  .ch-lm{background:#FDF4FF;color:#581C87;border:1px solid #E9D5FF}
-  
-  /* Summary box */
-  .summary-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
-  .summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px}
-  .summary-row.total{border-top:1px solid var(--border);margin-top:6px;padding-top:10px;font-weight:600;font-size:15px}
-  .summary-row.deduct{color:var(--red)}
-  .summary-row.net{color:var(--green)}
-  
-  /* Alert box */
-  .alert{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:14px}
-  .alert-info{background:var(--accent-light);border:1px solid var(--accent-border);color:var(--accent)}
-  .alert-warn{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
-  .alert i{flex-shrink:0;font-size:16px;margin-top:1px}
-  
-  /* Commission preview */
-  .comm-preview{background:linear-gradient(135deg,var(--green-bg),#F0FDF4);border:1px solid var(--green-border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px}
-  .comm-amount{font-size:28px;font-weight:700;color:var(--green);font-family:'IBM Plex Mono',monospace}
-  .comm-detail{font-size:12px;color:var(--green);opacity:0.8}
-  
-  /* Lock overlay */
-  .locked-field{position:relative}
-  .lock-overlay{position:absolute;inset:0;background:rgba(245,243,238,0.9);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--text3);border:1px dashed var(--border2);z-index:10}
-  
-  /* Audit log */
-  .log-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-  .log-item:last-child{border-bottom:none}
-  .log-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
-  .log-time{font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
-  
-  /* Tab switcher */
-  .tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:20px;width:fit-content}
-  .tab{padding:6px 14px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--text2);transition:all 0.15s;border:none;background:none;font-family:inherit}
-  .tab.active{background:var(--surface);color:var(--text);font-weight:500;box-shadow:var(--shadow)}
-  
-  /* Owner protected */
-  .owner-only-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);font-size:12px;color:var(--amber);margin-bottom:16px}
-  
-  /* Progress bar */
-  .progress-wrap{background:var(--surface2);border-radius:4px;height:6px;overflow:hidden}
-  .progress-bar{height:100%;border-radius:4px;background:var(--accent);transition:width 0.3s}
-  
-  /* Responsive */
-  @media(max-width:768px){
-    .app-shell{grid-template-columns:1fr}
-    .sidebar{display:none}
-    .stats-grid{grid-template-columns:1fr 1fr}
-    .form-grid{grid-template-columns:1fr}
-    .span2{grid-column:span 1}
-  }
-  
-  /* Notification dot */
-  .notif-dot{width:7px;height:7px;background:#EF4444;border-radius:50%;display:inline-block;margin-left:6px;vertical-align:middle}
-  
-  .divider{height:1px;background:var(--border);margin:16px 0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F5F3EE;--surface:#FFFFFF;--surface2:#F0EDE8;
+  --text:#1A1814;--text2:#6B6760;--text3:#A09D99;
+  --accent:#1D4ED8;--accent-light:#EFF3FF;--accent-border:#BFCFFF;
+  --green:#166534;--green-bg:#DCFCE7;--green-border:#BBF7D0;
+  --red:#991B1B;--red-bg:#FEE2E2;--red-border:#FECACA;
+  --amber:#92400E;--amber-bg:#FEF3C7;--amber-border:#FDE68A;
+  --border:#E2DDD6;--border2:#CCC8BF;
+  --radius:10px;--radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);
+  --nav-h:56px;--bottom-h:64px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+
+/* ===== TOPBAR ===== */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;z-index:200}
+.logo{font-size:15px;font-weight:600;display:flex;align-items:center;gap:7px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.role-toggle{display:flex;gap:3px;background:var(--surface2);padding:3px;border-radius:8px}
+.rtab{padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;color:var(--text2);border:none;background:none;font-family:inherit;white-space:nowrap}
+.rtab.active{background:var(--surface);color:var(--text);font-weight:500;box-shadow:var(--shadow)}
+.role-badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.role-owner{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.role-staff{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--bottom-h);background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);font-size:10px;border:none;background:none;font-family:inherit;padding:8px 4px;transition:color 0.15s;-webkit-tap-highlight-color:transparent}
+.bnav-item i{font-size:20px}
+.bnav-item.active{color:var(--accent)}
+.bnav-item.active i{color:var(--accent)}
+.bnav-owner{display:none}
+
+/* ===== MAIN SCROLL AREA ===== */
+.main{position:fixed;top:var(--nav-h);bottom:var(--bottom-h);left:0;right:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px}
+
+/* ===== PAGES ===== */
+.page{display:none}
+.page.active{display:block}
+
+/* ===== COMPONENTS ===== */
+.section-title{font-size:17px;font-weight:600;margin-bottom:4px}
+.section-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+
+label{font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:5px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-family:inherit;font-size:14px;color:var(--text);background:var(--surface);outline:none;appearance:none;-webkit-appearance:none;-webkit-tap-highlight-color:transparent}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(29,78,216,0.1)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6760' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-col{margin-bottom:12px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:var(--radius);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;border:1px solid transparent;-webkit-tap-highlight-color:transparent;min-height:44px}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);width:100%}
+.btn-ghost{background:transparent;color:var(--text2);border-color:var(--border2)}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
+.btn-sm{padding:7px 14px;font-size:12px;min-height:36px}
+.btn-row{display:flex;gap:10px;margin-top:16px}
+.btn-row .btn-primary{flex:1}
+
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-blue{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border)}
+.badge-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.ch-store{background:#FEF3C7;color:#78350F;border:1px solid #FDE68A}
+.ch-line{background:#DCFCE7;color:#14532D;border:1px solid #BBF7D0}
+.ch-fb{background:#EFF6FF;color:#1E3A5F;border:1px solid #BFDBFE}
+.ch-grab{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.ch-lm{background:#FDF4FF;color:#581C87;border:1px solid #E9D5FF}
+
+.alert{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:14px}
+.alert-info{background:var(--accent-light);border:1px solid var(--accent-border);color:var(--accent)}
+.alert-warn{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
+.alert i{flex-shrink:0;font-size:16px;margin-top:1px}
+
+.summary-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px}
+.summary-row.total{border-top:1px solid var(--border);margin-top:6px;padding-top:10px;font-weight:600;font-size:15px}
+.summary-row.deduct{color:var(--red)}
+.summary-row.net{color:var(--green)}
+
+.comm-box{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:14px;display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.comm-amount{font-size:26px;font-weight:700;color:var(--green);font-family:'IBM Plex Mono',monospace}
+.comm-detail{font-size:11px;color:var(--green);margin-top:2px}
+
+.divider{height:1px;background:var(--border);margin:14px 0}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stats-row.cols3{grid-template-columns:1fr 1fr 1fr}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+.stat-label{font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:500}
+.stat-value{font-size:20px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:-0.5px}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* Table scroll */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px}
+th{background:var(--surface2);padding:9px 12px;text-align:left;font-weight:500;font-size:10px;color:var(--text2);letter-spacing:0.3px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:11px}
+
+/* Audit log */
+.log-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.log-item:last-child{border-bottom:none}
+.log-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.log-time{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace}
+
+/* Lock */
+.locked-field{position:relative}
+.lock-overlay{position:absolute;inset:0;background:rgba(245,243,238,0.92);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--text3);border:1px dashed var(--border2);z-index:10}
+
+/* Progress */
+.progress-wrap{background:var(--surface2);border-radius:4px;height:5px;overflow:hidden;margin-top:4px}
+.progress-bar{height:100%;border-radius:4px;background:var(--accent)}
+
+.owner-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);font-size:12px;color:var(--amber);margin-bottom:14px}
+
+/* Staff settings row */
+.staff-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.staff-row input{flex:1;min-width:0}
+.staff-code{width:100px!important;flex:none!important}
 </style>
 </head>
 <body>
-<div class="app-shell">
 
 <!-- TOPBAR -->
 <header class="topbar">
-  <div class="logo">
-    <span class="fish">🐟</span>
-    FishLab POS
-  </div>
-  <div style="display:flex;gap:4px;background:var(--surface2);padding:3px;border-radius:8px;margin-left:24px">
-    <button class="tab active" onclick="switchRole('owner')" id="roleOwner">👑 เจ้าของร้าน</button>
-    <button class="tab" onclick="switchRole('staff')" id="roleStaff">👤 พนักงาน (Staff A)</button>
-  </div>
+  <div class="logo">🐟 FishLab POS</div>
   <div class="topbar-right">
-    <span class="role-badge role-owner" id="roleBadge">Owner Mode</span>
-    <button class="btn btn-ghost btn-sm"><i class="ti ti-bell"></i><span class="notif-dot"></span></button>
+    <div class="role-toggle">
+      <button class="rtab active" onclick="switchRole('owner')" id="roleOwner">👑 Owner</button>
+      <button class="rtab" onclick="switchRole('staff')" id="roleStaff">👤 Staff</button>
+    </div>
+    <span class="role-badge role-owner" id="roleBadge">Owner</span>
     <div class="avatar">KP</div>
   </div>
 </header>
 
-<!-- SIDEBAR -->
-<nav class="sidebar">
-  <div class="nav-label">หน้างาน</div>
-  <button class="nav-item active" onclick="showPage('neworder')"><i class="ti ti-plus"></i>คีย์ออเดอร์ใหม่</button>
-  <button class="nav-item" onclick="showPage('orders')"><i class="ti ti-list"></i>รายการออเดอร์</button>
-  <button class="nav-item" onclick="showPage('mycomm')"><i class="ti ti-coin"></i>ยอดคอมฯ ฉัน</button>
-  <div class="nav-divider"></div>
-  <div class="nav-label">เจ้าของร้าน</div>
-  <button class="nav-item" id="navDash" onclick="showPage('dashboard')"><i class="ti ti-chart-bar"></i>Dashboard กำไร</button>
-  <button class="nav-item" id="navAudit" onclick="showPage('audit')"><i class="ti ti-shield-check"></i>Audit Log</button>
-  <div class="nav-divider"></div>
-  <div class="nav-label">ตั้งค่า</div>
-  <button class="nav-item" onclick="showPage('settings')"><i class="ti ti-settings"></i>ตั้งค่าระบบ</button>
-</nav>
-
-<!-- MAIN CONTENT -->
+<!-- MAIN -->
 <main class="main">
 
-<!-- ====== PAGE: NEW ORDER ====== -->
+<!-- NEW ORDER -->
 <div class="page active" id="page-neworder">
-  <div class="section-header">
-    <div>
-      <div class="section-title">คีย์ออเดอร์ใหม่</div>
-      <div class="section-sub">วันที่ 6 มิ.ย. 2568 · 14:32 น.</div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost"><i class="ti ti-history"></i>ประวัติ</button>
-    </div>
-  </div>
+  <div class="section-title">คีย์ออเดอร์ใหม่</div>
+  <div class="section-sub">6 มิ.ย. 2568 · บันทึกโดย Staff A</div>
 
-  <!-- Alert -->
   <div class="alert alert-info">
     <i class="ti ti-info-circle"></i>
-    <div>ทุกช่องเป็น Dropdown ห้ามพิมพ์เองเพื่อป้องกันสูตรพัง · ระบบจะบันทึกว่า <strong>Staff A</strong> เป็นผู้คีย์ออเดอร์นี้ เวลา 14:32 น.</div>
+    <div>ทุกช่องเป็น Dropdown ห้ามพิมพ์เอง · ระบบบันทึกชื่อผู้คีย์และเวลาอัตโนมัติ</div>
   </div>
 
   <div class="card">
-    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px">
-      <i class="ti ti-shopping-cart"></i> ข้อมูลออเดอร์
-    </div>
-    <div class="form-grid">
-      
-      <!-- Channel -->
+    <div class="card-title"><i class="ti ti-shopping-cart"></i>ข้อมูลออเดอร์</div>
+
+    <div class="form-row">
       <div>
-        <label><i class="ti ti-broadcast" style="font-size:12px"></i> ช่องทางขาย <span style="color:#EF4444">*</span></label>
+        <label>ช่องทางขาย *</label>
         <select id="channelSelect" onchange="onChannelChange()">
-          <option value="">— เลือกช่องทาง —</option>
+          <option value="">— เลือก —</option>
           <option value="store">🏪 หน้าร้าน</option>
           <option value="line">💬 LINE OA</option>
           <option value="fb">👍 Facebook</option>
@@ -239,389 +183,267 @@
           <option value="lm">🔵 Lineman</option>
         </select>
       </div>
-
-      <!-- Staff -->
       <div>
-        <label><i class="ti ti-user" style="font-size:12px"></i> ผู้หาออเดอร์ <span style="color:#EF4444">*</span></label>
-        <select id="staffSelect" onchange="onStaffChange()">
-          <option value="store">🏪 STORE (ไม่มีรหัส)</option>
+        <label>ผู้หาออเดอร์ *</label>
+        <select id="staffSelect" onchange="calcSummary()">
+          <option value="store">🏪 STORE</option>
           <option value="staffa">👤 Staff A</option>
           <option value="staffb">👤 Staff B</option>
         </select>
       </div>
+    </div>
 
-      <!-- Product -->
+    <div class="form-row">
       <div>
-        <label><i class="ti ti-fish" style="font-size:12px"></i> สินค้า <span style="color:#EF4444">*</span></label>
-        <select id="productSelect" onchange="onProductChange()">
-          <option value="">— เลือกสินค้า —</option>
-          <option value="S" data-price="190" data-gp="250">📦 Set S — 190 / 250 (GP)</option>
-          <option value="M" data-price="320" data-gp="420">📦 Set M — 320 / 420 (GP)</option>
-          <option value="L" data-price="490" data-gp="640">📦 Set L — 490 / 640 (GP)</option>
+        <label>สินค้า *</label>
+        <select id="productSelect" onchange="calcSummary()">
+          <option value="">— เลือก —</option>
+          <option value="S">📦 Set S</option>
+          <option value="M">📦 Set M</option>
+          <option value="L">📦 Set L</option>
         </select>
       </div>
-
-      <!-- Quantity -->
       <div>
-        <label><i class="ti ti-hash" style="font-size:12px"></i> จำนวน (กล่อง)</label>
+        <label>จำนวน (กล่อง)</label>
         <input type="number" id="qtyInput" value="1" min="1" max="99" oninput="calcSummary()">
       </div>
+    </div>
 
-      <!-- Promo -->
+    <div class="form-row">
       <div>
-        <label><i class="ti ti-tag" style="font-size:12px"></i> Promo Code (ถ้ามี)</label>
-        <input type="text" id="promoInput" placeholder="เช่น STAFFA-001" oninput="onStaffChange()">
+        <label>Promo Code (ถ้ามี)</label>
+        <input type="text" id="promoInput" placeholder="เช่น STAFFA-001" oninput="calcSummary()">
       </div>
-
-      <!-- Status -->
       <div>
-        <label><i class="ti ti-circle-check" style="font-size:12px"></i> สถานะออเดอร์</label>
+        <label>สถานะออเดอร์</label>
         <select id="statusSelect" onchange="calcSummary()">
           <option value="success">✅ สำเร็จ</option>
           <option value="cancel">❌ ยกเลิก</option>
-          <option value="claim">🔄 เคลมสินค้า</option>
+          <option value="claim">🔄 เคลม</option>
         </select>
       </div>
+    </div>
 
-      <!-- Slip ref (conditional) -->
-      <div id="slipSection" style="display:none" class="span2">
-        <div class="alert alert-warn">
-          <i class="ti ti-alert-triangle"></i>
-          <div>ช่องทางนี้ต้องแนบหลักฐานการโอนเงิน — กรอกเลขอ้างอิงสลิปหรือเวลาโอน</div>
-        </div>
-        <div class="form-grid">
-          <div>
-            <label>เลขอ้างอิงสลิป <span style="color:#EF4444">*</span></label>
-            <input type="text" placeholder="เช่น 67060600001234">
-          </div>
-          <div>
-            <label>เวลาในสลิป <span style="color:#EF4444">*</span></label>
-            <input type="time">
-          </div>
-        </div>
+    <div id="slipSection" style="display:none">
+      <div class="alert alert-warn">
+        <i class="ti ti-alert-triangle"></i>
+        <div>ต้องแนบหลักฐานการโอนเงิน</div>
       </div>
-
+      <div class="form-row">
+        <div><label>เลขอ้างอิงสลิป *</label><input type="text" placeholder="67060600001234"></div>
+        <div><label>เวลาในสลิป *</label><input type="time"></div>
+      </div>
     </div>
 
     <div class="divider"></div>
 
-    <!-- Summary -->
-    <div class="form-grid">
-      <div>
-        <div class="summary-box" id="priceSummary">
-          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:5px"><i class="ti ti-calculator" style="font-size:14px"></i> สรุปยอดเงิน</div>
-          <div class="summary-row"><span>ราคาสินค้า</span><span id="s-price">฿0.00</span></div>
-          <div class="summary-row deduct" id="s-gp-row" style="display:none"><span>หัก GP 32% (Delivery)</span><span id="s-gp">-฿0.00</span></div>
-          <div class="summary-row" id="s-channel-row"><span>ช่องทาง</span><span id="s-channel" class="badge badge-gray">—</span></div>
-          <div class="summary-row total net"><span>ยอดโอนเข้าสุทธิ</span><span id="s-net">฿0.00</span></div>
-        </div>
-      </div>
-      <div>
-        <!-- Commission Preview -->
-        <div id="commSection">
-          <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:5px"><i class="ti ti-coin" style="font-size:14px"></i> ค่าคอมมิชชั่น</div>
-          <div class="comm-preview" id="commPreview">
-            <div>
-              <div class="comm-amount" id="commAmount">฿0</div>
-              <div class="comm-detail" id="commDetail">เลือกสินค้าและช่องทางก่อน</div>
-            </div>
-            <div style="margin-left:auto" id="commBadge"></div>
-          </div>
-          <div class="alert alert-warn" style="margin-top:10px;display:none" id="commWarnBox">
-            <i class="ti ti-alert-triangle"></i>
-            <div id="commWarnText"></div>
-          </div>
-        </div>
-      </div>
+    <div class="summary-box">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:10px">สรุปยอดเงิน</div>
+      <div class="summary-row"><span>ราคาสินค้า</span><span id="s-price">฿0</span></div>
+      <div class="summary-row deduct" id="s-gp-row" style="display:none"><span>หัก GP 32%</span><span id="s-gp">-฿0</span></div>
+      <div class="summary-row"><span>ช่องทาง</span><span id="s-channel" class="badge badge-gray">—</span></div>
+      <div class="summary-row total net"><span>ยอดโอนเข้าสุทธิ</span><span id="s-net">฿0</span></div>
     </div>
 
-    <div class="divider"></div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn btn-ghost"><i class="ti ti-x"></i>ล้าง</button>
+    <div class="comm-box">
+      <div>
+        <div class="comm-amount" id="commAmount">฿0</div>
+        <div class="comm-detail" id="commDetail">เลือกสินค้าและช่องทางก่อน</div>
+      </div>
+      <div id="commBadge"></div>
+    </div>
+
+    <div class="alert alert-warn" style="margin-top:12px;display:none" id="commWarnBox">
+      <i class="ti ti-alert-triangle"></i>
+      <div id="commWarnText"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost btn-sm" onclick="clearForm()"><i class="ti ti-x"></i>ล้าง</button>
       <button class="btn btn-primary" onclick="saveOrder()"><i class="ti ti-device-floppy"></i>บันทึกออเดอร์</button>
     </div>
   </div>
 </div>
 
-<!-- ====== PAGE: ORDER LIST ====== -->
+<!-- ORDERS -->
 <div class="page" id="page-orders">
-  <div class="section-header">
-    <div>
-      <div class="section-title">รายการออเดอร์</div>
-      <div class="section-sub">6 มิ.ย. 2568 · 12 รายการ</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <input type="date" value="2025-06-06" style="width:auto;padding:6px 10px;font-size:12px">
-      <button class="btn btn-ghost btn-sm"><i class="ti ti-lock"></i>ล็อกวันนี้</button>
-      <button class="btn btn-primary btn-sm"><i class="ti ti-download"></i>Export</button>
-    </div>
-  </div>
+  <div class="section-title">รายการออเดอร์</div>
+  <div class="section-sub">6 มิ.ย. 2568 · 12 รายการ</div>
 
-  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+  <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-label">ยอดขายรวม (วันนี้)</div>
+      <div class="stat-label">ยอดขายวันนี้</div>
       <div class="stat-value" style="color:var(--accent)">฿6,240</div>
-      <div class="stat-sub">12 ออเดอร์ · 18 กล่อง</div>
+      <div class="stat-sub">12 ออเดอร์</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">ค่าคอมฯ รวม</div>
       <div class="stat-value" style="color:var(--green)">฿360</div>
-      <div class="stat-sub">Staff A ฿240 · Staff B ฿120</div>
+      <div class="stat-sub">A ฿240 · B ฿120</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">ยกเลิก / เคลม</div>
-      <div class="stat-value" style="color:var(--red)">1</div>
-      <div class="stat-sub">หักแล้วอัตโนมัติ</div>
-    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <input type="date" value="2025-06-06" style="flex:1;font-size:12px;padding:8px 10px">
+    <button class="btn btn-ghost btn-sm"><i class="ti ti-lock"></i>ล็อกวัน</button>
   </div>
 
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>เวลา</th>
-          <th>ช่องทาง</th>
-          <th>สินค้า</th>
-          <th>ราคา</th>
-          <th>GP หัก</th>
-          <th>สุทธิ</th>
-          <th>ผู้หาออเดอร์</th>
-          <th>คอมฯ</th>
-          <th>สถานะ</th>
-          <th>คีย์โดย</th>
-        </tr>
-      </thead>
+      <thead><tr><th>#</th><th>เวลา</th><th>ช่องทาง</th><th>สินค้า</th><th>สุทธิ</th><th>พนักงาน</th><th>คอมฯ</th><th>สถานะ</th></tr></thead>
       <tbody>
         <tr>
-          <td class="mono">001</td>
-          <td class="mono">09:12</td>
+          <td class="mono">001</td><td class="mono">09:12</td>
           <td><span class="badge ch-store">หน้าร้าน</span></td>
-          <td>Set M × 2</td>
-          <td class="mono">640</td>
-          <td class="mono" style="color:var(--text3)">—</td>
-          <td class="mono" style="color:var(--green)">640</td>
-          <td>STORE</td>
-          <td class="mono">฿20</td>
+          <td>Set M×2</td><td class="mono" style="color:var(--green)">640</td>
+          <td>STORE</td><td class="mono">฿20</td>
           <td><span class="badge badge-green">สำเร็จ</span></td>
-          <td style="font-size:11px;color:var(--text3)">Staff A · 09:12</td>
         </tr>
         <tr>
-          <td class="mono">002</td>
-          <td class="mono">10:05</td>
+          <td class="mono">002</td><td class="mono">10:05</td>
           <td><span class="badge ch-grab">Grab</span></td>
-          <td>Set L × 1</td>
-          <td class="mono">640</td>
-          <td class="mono" style="color:var(--red)">-205</td>
-          <td class="mono" style="color:var(--green)">435</td>
-          <td>Staff A</td>
-          <td class="mono">฿40</td>
+          <td>Set L×1</td><td class="mono" style="color:var(--green)">435</td>
+          <td>Staff A</td><td class="mono">฿40</td>
           <td><span class="badge badge-green">สำเร็จ</span></td>
-          <td style="font-size:11px;color:var(--text3)">Staff A · 10:05</td>
         </tr>
         <tr>
-          <td class="mono">003</td>
-          <td class="mono">11:30</td>
+          <td class="mono">003</td><td class="mono">11:30</td>
           <td><span class="badge ch-line">LINE OA</span></td>
-          <td>Set S × 3</td>
-          <td class="mono">570</td>
-          <td class="mono" style="color:var(--text3)">—</td>
-          <td class="mono" style="color:var(--green)">570</td>
-          <td>Staff B</td>
-          <td class="mono">฿45</td>
+          <td>Set S×3</td><td class="mono" style="color:var(--green)">570</td>
+          <td>Staff B</td><td class="mono">฿45</td>
           <td><span class="badge badge-green">สำเร็จ</span></td>
-          <td style="font-size:11px;color:var(--text3)">Staff B · 11:30</td>
         </tr>
         <tr style="opacity:0.5">
-          <td class="mono">004</td>
-          <td class="mono">12:15</td>
+          <td class="mono">004</td><td class="mono">12:15</td>
           <td><span class="badge ch-fb">Facebook</span></td>
-          <td>Set M × 1</td>
-          <td class="mono" style="text-decoration:line-through">320</td>
-          <td class="mono" style="color:var(--text3)">—</td>
-          <td class="mono" style="text-decoration:line-through">320</td>
-          <td>STORE</td>
-          <td class="mono" style="text-decoration:line-through">฿10</td>
+          <td><s>Set M×1</s></td><td class="mono"><s>320</s></td>
+          <td>STORE</td><td class="mono"><s>฿10</s></td>
           <td><span class="badge badge-red">ยกเลิก</span></td>
-          <td style="font-size:11px;color:var(--text3)">Staff A · 12:16</td>
         </tr>
         <tr>
-          <td class="mono">005</td>
-          <td class="mono">13:45</td>
+          <td class="mono">005</td><td class="mono">13:45</td>
           <td><span class="badge ch-lm">Lineman</span></td>
-          <td>Set S × 2</td>
-          <td class="mono">500</td>
-          <td class="mono" style="color:var(--red)">-160</td>
-          <td class="mono" style="color:var(--green)">340</td>
-          <td>Staff A</td>
-          <td class="mono">฿30</td>
+          <td>Set S×2</td><td class="mono" style="color:var(--green)">340</td>
+          <td>Staff A</td><td class="mono">฿30</td>
           <td><span class="badge badge-green">สำเร็จ</span></td>
-          <td style="font-size:11px;color:var(--text3)">Staff A · 13:45</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div style="font-size:11px;color:var(--text3);padding:10px 0;text-align:center">แสดง 5 จาก 12 รายการ · ออเดอร์วันเก่าถูกล็อกแล้ว ไม่สามารถแก้ไขได้</div>
+  <div style="font-size:11px;color:var(--text3);padding:10px 0;text-align:center">แสดง 5 จาก 12 รายการ</div>
 </div>
 
-<!-- ====== PAGE: MY COMMISSION ====== -->
+<!-- MY COMMISSION -->
 <div class="page" id="page-mycomm">
-  <div class="section-header">
-    <div>
-      <div class="section-title">ยอดคอมมิชชั่นของฉัน</div>
-      <div class="section-sub">Staff A · มิ.ย. 2568</div>
-    </div>
-    <select style="width:auto;padding:6px 10px;font-size:12px">
-      <option>มิ.ย. 2568</option>
-      <option>พ.ค. 2568</option>
-    </select>
-  </div>
+  <div class="section-title">ยอดคอมฯ ของฉัน</div>
+  <div class="section-sub">Staff A · มิ.ย. 2568</div>
 
-  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+  <div class="stats-row cols3">
     <div class="stat-card">
-      <div class="stat-label">ค่าคอมฯ สะสมเดือนนี้</div>
+      <div class="stat-label">คอมฯ เดือนนี้</div>
       <div class="stat-value" style="color:var(--green)">฿840</div>
-      <div class="stat-sub">อัปเดตล่าสุด 14:30 น.</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">จำนวนออเดอร์ (ฉัน)</div>
+      <div class="stat-label">ออเดอร์</div>
       <div class="stat-value">34</div>
-      <div class="stat-sub">เรทพิเศษ 28 · เรทพื้นฐาน 6</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">ยกเลิกที่หักแล้ว</div>
+      <div class="stat-label">ยกเลิก</div>
       <div class="stat-value" style="color:var(--red)">-฿15</div>
-      <div class="stat-sub">1 ออเดอร์ถูกยกเลิก</div>
     </div>
   </div>
 
   <div class="card">
-    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px">รายละเอียดค่าคอม</div>
+    <div class="card-title">รายละเอียดค่าคอม</div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>วันที่</th><th>ออเดอร์</th><th>สินค้า</th><th>เรท</th><th>คอมฯ</th><th>หมายเหตุ</th></tr></thead>
+        <thead><tr><th>วันที่</th><th>ออเดอร์</th><th>สินค้า</th><th>เรท</th><th>คอมฯ</th></tr></thead>
         <tbody>
-          <tr><td>6 มิ.ย.</td><td class="mono">002</td><td>Set L × 1</td><td><span class="badge badge-green">พิเศษ</span></td><td class="mono">฿40</td><td style="font-size:11px;color:var(--text3)">มี Promo Code</td></tr>
-          <tr><td>6 มิ.ย.</td><td class="mono">005</td><td>Set S × 2</td><td><span class="badge badge-green">พิเศษ</span></td><td class="mono">฿30</td><td style="font-size:11px;color:var(--text3)">ลิงก์ติดรหัส</td></tr>
-          <tr><td>5 มิ.ย.</td><td class="mono">089</td><td>Set M × 3</td><td><span class="badge badge-gray">พื้นฐาน</span></td><td class="mono">฿30</td><td style="font-size:11px;color:var(--text3)">ลูกค้าทักมาลอยๆ</td></tr>
-          <tr style="opacity:0.5"><td>5 มิ.ย.</td><td class="mono">091</td><td>Set S × 1</td><td><span class="badge badge-gray">พื้นฐาน</span></td><td class="mono" style="text-decoration:line-through;color:var(--red)">-฿15</td><td style="font-size:11px;color:var(--red)">ยกเลิก</td></tr>
+          <tr><td>6 มิ.ย.</td><td class="mono">002</td><td>Set L×1</td><td><span class="badge badge-green">พิเศษ</span></td><td class="mono">฿40</td></tr>
+          <tr><td>6 มิ.ย.</td><td class="mono">005</td><td>Set S×2</td><td><span class="badge badge-green">พิเศษ</span></td><td class="mono">฿30</td></tr>
+          <tr><td>5 มิ.ย.</td><td class="mono">089</td><td>Set M×3</td><td><span class="badge badge-gray">พื้นฐาน</span></td><td class="mono">฿30</td></tr>
+          <tr style="opacity:0.5"><td>5 มิ.ย.</td><td class="mono">091</td><td>Set S×1</td><td><span class="badge badge-gray">พื้นฐาน</span></td><td class="mono" style="color:var(--red)"><s>-฿15</s></td></tr>
         </tbody>
       </table>
     </div>
-    <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:12px 16px;margin-top:14px;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:13px;color:var(--green)">⚠️ ยอดนี้ไม่รวมต้นทุนสินค้าและกำไรร้าน — เห็นเฉพาะค่าคอมฯ ของตัวเองเท่านั้น</div>
+    <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:var(--green)">ไม่รวมต้นทุน/กำไรร้าน</div>
       <div style="font-size:18px;font-weight:700;color:var(--green);font-family:'IBM Plex Mono',monospace">฿840</div>
     </div>
   </div>
 </div>
 
-<!-- ====== PAGE: DASHBOARD (Owner only) ====== -->
+<!-- DASHBOARD (owner only) -->
 <div class="page" id="page-dashboard">
-  <div class="owner-only-banner" id="ownerBanner">
-    <i class="ti ti-lock" style="font-size:16px"></i>
-    หน้านี้มองเห็นได้เฉพาะ เจ้าของร้าน เท่านั้น — พนักงานจะเห็นหน้าจอล็อค
+  <div class="owner-banner" id="ownerBanner">
+    <i class="ti ti-lock" style="font-size:15px"></i>
+    เจ้าของร้านเท่านั้น
   </div>
+  <div class="section-title">Dashboard กำไร</div>
+  <div class="section-sub">มิ.ย. 2568</div>
 
-  <div class="section-header">
-    <div>
-      <div class="section-title">Dashboard กำไร — Owner View</div>
-      <div class="section-sub">มิ.ย. 2568 · ข้อมูลอัปเดตอัตโนมัติ</div>
-    </div>
-  </div>
-
-  <div class="stats-grid">
+  <div class="stats-row">
     <div class="stat-card">
       <div class="stat-label">ยอดขายรวม</div>
       <div class="stat-value" style="color:var(--accent)">฿48,320</div>
-      <div class="stat-sub">เดือนนี้</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label" style="display:flex;align-items:center;gap:5px"><i class="ti ti-lock" style="font-size:12px;color:var(--amber)"></i>ต้นทุนปลาจริง</div>
+      <div class="stat-label">🔒 ต้นทุนปลาจริง</div>
       <div class="stat-value" style="color:var(--amber)">฿18,450</div>
-      <div class="stat-sub">ซ่อนจากพนักงาน</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">ค่าคอมฯ รวม</div>
       <div class="stat-value">฿2,840</div>
-      <div class="stat-sub">Staff A ฿1,680 · B ฿1,160</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label" style="display:flex;align-items:center;gap:5px"><i class="ti ti-lock" style="font-size:12px;color:var(--amber)"></i>กำไรสุทธิร้าน</div>
+      <div class="stat-label">🔒 กำไรสุทธิ</div>
       <div class="stat-value" style="color:var(--green)">฿27,030</div>
-      <div class="stat-sub">ซ่อนจากพนักงาน</div>
     </div>
   </div>
 
-  <div class="form-grid">
-    <div class="card">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-chart-pie"></i>ยอดขายแยกช่องทาง</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>หน้าร้าน</span><span class="mono">฿14,200</span></div>
-          <div class="progress-wrap"><div class="progress-bar" style="width:29%;background:#F59E0B"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>LINE OA</span><span class="mono">฿18,640</span></div>
-          <div class="progress-wrap"><div class="progress-bar" style="width:39%;background:#10B981"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Grab</span><span class="mono">฿9,820</span></div>
-          <div class="progress-wrap"><div class="progress-bar" style="width:20%"></div></div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Lineman</span><span class="mono">฿5,660</span></div>
-          <div class="progress-wrap"><div class="progress-bar" style="width:12%;background:#8B5CF6"></div></div>
-        </div>
-      </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-chart-pie"></i>ยอดขายแยกช่องทาง</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>LINE OA</span><span class="mono">฿18,640</span></div><div class="progress-wrap"><div class="progress-bar" style="width:39%;background:#10B981"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>หน้าร้าน</span><span class="mono">฿14,200</span></div><div class="progress-wrap"><div class="progress-bar" style="width:29%;background:#F59E0B"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Grab</span><span class="mono">฿9,820</span></div><div class="progress-wrap"><div class="progress-bar" style="width:20%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Lineman</span><span class="mono">฿5,660</span></div><div class="progress-wrap"><div class="progress-bar" style="width:12%;background:#8B5CF6"></div></div></div>
     </div>
+  </div>
 
-    <div class="card">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:6px"><i class="ti ti-coin"></i>ค่าคอมฯ แยกพนักงาน</div>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="avatar" style="background:#3B82F6">SA</div>
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:500">Staff A</div>
-            <div class="progress-wrap" style="margin-top:4px"><div class="progress-bar" style="width:59%;background:#3B82F6"></div></div>
-          </div>
-          <div class="mono" style="font-size:15px">฿1,680</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="avatar" style="background:#10B981">SB</div>
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:500">Staff B</div>
-            <div class="progress-wrap" style="margin-top:4px"><div class="progress-bar" style="width:41%;background:#10B981"></div></div>
-          </div>
-          <div class="mono" style="font-size:15px">฿1,160</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <button class="btn btn-ghost btn-full btn-sm"><i class="ti ti-lock"></i>ล็อกข้อมูลเดือนนี้</button>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-coin"></i>ค่าคอมฯ แยกพนักงาน</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div class="avatar" style="background:#3B82F6;width:32px;height:32px">SA</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">Staff A</div><div class="progress-wrap"><div class="progress-bar" style="width:59%;background:#3B82F6"></div></div></div>
+      <div class="mono" style="font-size:15px">฿1,680</div>
     </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="avatar" style="background:#10B981;width:32px;height:32px">SB</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">Staff B</div><div class="progress-wrap"><div class="progress-bar" style="width:41%;background:#10B981"></div></div></div>
+      <div class="mono" style="font-size:15px">฿1,160</div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-ghost btn-sm" style="width:100%"><i class="ti ti-lock"></i>ล็อกข้อมูลเดือนนี้</button>
   </div>
 </div>
 
-<!-- ====== PAGE: AUDIT LOG ====== -->
+<!-- AUDIT LOG -->
 <div class="page" id="page-audit">
-  <div class="section-header">
-    <div>
-      <div class="section-title">Audit Log — ประวัติการแก้ไข</div>
-      <div class="section-sub">ตรวจสอบย้อนหลังทุกการกระทำ</div>
-    </div>
-    <button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i>Export</button>
-  </div>
+  <div class="section-title">Audit Log</div>
+  <div class="section-sub">ประวัติการแก้ไขทั้งหมด</div>
 
   <div class="alert alert-info">
     <i class="ti ti-shield-check"></i>
-    <div>ทุกการกระทำในระบบถูกบันทึกอัตโนมัติ ไม่สามารถลบหรือแก้ไขประวัติได้</div>
+    <div>ทุกการกระทำถูกบันทึกอัตโนมัติ ลบ/แก้ไขไม่ได้</div>
   </div>
 
   <div class="card">
     <div class="log-item">
       <div class="log-dot"></div>
       <div style="flex:1">
-        <div style="font-size:13px"><strong>Staff A</strong> บันทึกออเดอร์ #012 · Set L × 2 · LINE OA</div>
-        <div style="display:flex;gap:12px;margin-top:3px">
+        <div style="font-size:13px"><strong>Staff A</strong> บันทึกออเดอร์ #012 · Set L×2 · LINE OA</div>
+        <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">
           <span class="log-time">06/06/2568 · 14:32:05</span>
           <span class="badge badge-green" style="font-size:10px">บันทึกใหม่</span>
         </div>
@@ -630,8 +452,8 @@
     <div class="log-item">
       <div class="log-dot" style="background:var(--amber)"></div>
       <div style="flex:1">
-        <div style="font-size:13px"><strong>Staff B</strong> แก้ไขออเดอร์ #009 · เปลี่ยนจำนวนจาก 1 → 2 กล่อง</div>
-        <div style="display:flex;gap:12px;margin-top:3px">
+        <div style="font-size:13px"><strong>Staff B</strong> แก้ไขออเดอร์ #009 · จำนวน 1→2 กล่อง</div>
+        <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">
           <span class="log-time">06/06/2568 · 13:18:44</span>
           <span class="badge badge-amber" style="font-size:10px">แก้ไข</span>
         </div>
@@ -640,8 +462,8 @@
     <div class="log-item">
       <div class="log-dot" style="background:var(--red)"></div>
       <div style="flex:1">
-        <div style="font-size:13px"><strong>Staff A</strong> เปลี่ยนสถานะออเดอร์ #004 เป็น "ยกเลิก" · หักคอมฯ ฿10 อัตโนมัติ</div>
-        <div style="display:flex;gap:12px;margin-top:3px">
+        <div style="font-size:13px"><strong>Staff A</strong> ยกเลิกออเดอร์ #004 · หักคอมฯ ฿10 อัตโนมัติ</div>
+        <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">
           <span class="log-time">06/06/2568 · 12:16:22</span>
           <span class="badge badge-red" style="font-size:10px">ยกเลิก</span>
         </div>
@@ -650,8 +472,8 @@
     <div class="log-item">
       <div class="log-dot" style="background:var(--green)"></div>
       <div style="flex:1">
-        <div style="font-size:13px"><strong>Owner (KP)</strong> ล็อกข้อมูลวันที่ 5 มิ.ย. 2568 — พนักงานไม่สามารถแก้ไขได้อีก</div>
-        <div style="display:flex;gap:12px;margin-top:3px">
+        <div style="font-size:13px"><strong>Owner (KP)</strong> ล็อกข้อมูล 5 มิ.ย. 2568</div>
+        <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">
           <span class="log-time">06/06/2568 · 09:00:00</span>
           <span class="badge badge-blue" style="font-size:10px">ล็อกวัน</span>
         </div>
@@ -660,8 +482,8 @@
     <div class="log-item">
       <div class="log-dot"></div>
       <div style="flex:1">
-        <div style="font-size:13px"><strong>Staff B</strong> พยายามแก้ไขออเดอร์ #078 (5 มิ.ย.) — <span style="color:var(--red)">ถูกบล็อก (วันล็อกแล้ว)</span></div>
-        <div style="display:flex;gap:12px;margin-top:3px">
+        <div style="font-size:13px"><strong>Staff B</strong> พยายามแก้ไข #078 — <span style="color:var(--red)">ถูกบล็อก</span></div>
+        <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">
           <span class="log-time">06/06/2568 · 09:45:11</span>
           <span class="badge badge-red" style="font-size:10px">ถูกบล็อก</span>
         </div>
@@ -670,116 +492,103 @@
   </div>
 </div>
 
-<!-- ====== PAGE: SETTINGS ====== -->
+<!-- SETTINGS -->
 <div class="page" id="page-settings">
-  <div class="section-header">
-    <div><div class="section-title">ตั้งค่าระบบ</div></div>
-    <button class="btn btn-primary btn-sm"><i class="ti ti-device-floppy"></i>บันทึกการตั้งค่า</button>
+  <div class="section-title">ตั้งค่าระบบ</div>
+  <div class="section-sub">จัดการพนักงานและราคาสินค้า</div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-users"></i>รายชื่อพนักงาน</div>
+    <div class="staff-row">
+      <div class="avatar" style="width:28px;height:28px;font-size:11px;flex-shrink:0">SA</div>
+      <input type="text" value="Staff A">
+      <input type="text" value="STAFFA-001" class="staff-code">
+      <button class="btn btn-danger btn-sm"><i class="ti ti-trash"></i></button>
+    </div>
+    <div class="staff-row">
+      <div class="avatar" style="width:28px;height:28px;font-size:11px;flex-shrink:0;background:#10B981">SB</div>
+      <input type="text" value="Staff B">
+      <input type="text" value="STAFFB-002" class="staff-code">
+      <button class="btn btn-danger btn-sm"><i class="ti ti-trash"></i></button>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:4px"><i class="ti ti-plus"></i>เพิ่มพนักงาน</button>
   </div>
 
-  <div class="form-grid">
-    <div class="card">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px"><i class="ti ti-users"></i> รายชื่อพนักงาน</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-        <div style="display:flex;gap:8px;align-items:center">
-          <div class="avatar" style="width:28px;height:28px;font-size:11px">SA</div>
-          <input type="text" value="Staff A" style="flex:1">
-          <input type="text" value="STAFFA-001" placeholder="รหัส" style="width:110px">
-          <button class="btn btn-danger btn-sm"><i class="ti ti-trash"></i></button>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <div class="avatar" style="width:28px;height:28px;font-size:11px;background:#10B981">SB</div>
-          <input type="text" value="Staff B" style="flex:1">
-          <input type="text" value="STAFFB-002" placeholder="รหัส" style="width:110px">
-          <button class="btn btn-danger btn-sm"><i class="ti ti-trash"></i></button>
-        </div>
-      </div>
-      <button class="btn btn-ghost btn-full btn-sm"><i class="ti ti-plus"></i>เพิ่มพนักงาน</button>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-fish"></i>ราคาสินค้า & ต้นทุน</div>
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;font-size:10px;color:var(--text3);margin-bottom:8px;padding:0 2px">
+      <span></span><span>ปกติ</span><span>+GP</span><span>ต้นทุน🔒</span>
     </div>
-
-    <div class="card">
-      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px"><i class="ti ti-fish"></i> ราคาสินค้า & ต้นทุน</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px;color:var(--text3);padding:0 4px">
-          <span>ขนาด</span><span>ราคาปกติ</span><span>ราคา+GP</span><span>ต้นทุน 🔒</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:center">
-          <span style="font-size:13px;font-weight:500">Set S</span>
-          <input type="number" value="190" style="padding:6px 8px;font-size:12px">
-          <input type="number" value="250" style="padding:6px 8px;font-size:12px">
-          <div class="locked-field" id="costS">
-            <input type="number" value="95" style="padding:6px 8px;font-size:12px">
-            <div class="lock-overlay" id="lockCostS"><i class="ti ti-lock" style="font-size:14px"></i>เจ้าของเท่านั้น</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:center">
-          <span style="font-size:13px;font-weight:500">Set M</span>
-          <input type="number" value="320" style="padding:6px 8px;font-size:12px">
-          <input type="number" value="420" style="padding:6px 8px;font-size:12px">
-          <div class="locked-field">
-            <input type="number" value="155" style="padding:6px 8px;font-size:12px">
-            <div class="lock-overlay"><i class="ti ti-lock" style="font-size:14px"></i>เจ้าของเท่านั้น</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:center">
-          <span style="font-size:13px;font-weight:500">Set L</span>
-          <input type="number" value="490" style="padding:6px 8px;font-size:12px">
-          <input type="number" value="640" style="padding:6px 8px;font-size:12px">
-          <div class="locked-field">
-            <input type="number" value="230" style="padding:6px 8px;font-size:12px">
-            <div class="lock-overlay"><i class="ti ti-lock" style="font-size:14px"></i>เจ้าของเท่านั้น</div>
-          </div>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--amber);margin-top:10px;display:flex;align-items:center;gap:5px"><i class="ti ti-info-circle" style="font-size:13px"></i>ช่องต้นทุนมองเห็นได้เฉพาะ Owner Mode</div>
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:500">Set S</span>
+      <input type="number" value="190" style="padding:7px 8px;font-size:12px">
+      <input type="number" value="250" style="padding:7px 8px;font-size:12px">
+      <div class="locked-field"><input type="number" value="95" style="padding:7px 8px;font-size:12px"><div class="lock-overlay" id="lockS"><i class="ti ti-lock" style="font-size:13px"></i></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:500">Set M</span>
+      <input type="number" value="320" style="padding:7px 8px;font-size:12px">
+      <input type="number" value="420" style="padding:7px 8px;font-size:12px">
+      <div class="locked-field"><input type="number" value="155" style="padding:7px 8px;font-size:12px"><div class="lock-overlay" id="lockM"><i class="ti ti-lock" style="font-size:13px"></i></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center">
+      <span style="font-size:13px;font-weight:500">Set L</span>
+      <input type="number" value="490" style="padding:7px 8px;font-size:12px">
+      <input type="number" value="640" style="padding:7px 8px;font-size:12px">
+      <div class="locked-field"><input type="number" value="230" style="padding:7px 8px;font-size:12px"><div class="lock-overlay" id="lockL"><i class="ti ti-lock" style="font-size:13px"></i></div></div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:16px">
-    <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px"><i class="ti ti-adjustments"></i> เรทค่าคอมมิชชั่น</div>
-    <div class="form-grid cols3">
-      <div>
-        <label>Set S — เรทพิเศษ (บาท/กล่อง)</label>
-        <input type="number" value="15">
-      </div>
-      <div>
-        <label>Set M — เรทพิเศษ (บาท/กล่อง)</label>
-        <input type="number" value="25">
-      </div>
-      <div>
-        <label>Set L — เรทพิเศษ (บาท/กล่อง)</label>
-        <input type="number" value="40">
-      </div>
+  <div class="card">
+    <div class="card-title"><i class="ti ti-adjustments"></i>เรทค่าคอมมิชชั่น</div>
+    <div class="form-row">
+      <div><label>Set S (เรทพิเศษ)</label><input type="number" value="15"></div>
+      <div><label>Set M (เรทพิเศษ)</label><input type="number" value="25"></div>
     </div>
-    <div class="divider"></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <label style="margin:0">เรทพื้นฐาน (ทุกกรณีที่ไม่มีรหัส)</label>
-      <input type="number" value="10" style="width:80px">
-      <span style="font-size:12px;color:var(--text3)">บาท/กล่อง</span>
+    <div class="form-row">
+      <div><label>Set L (เรทพิเศษ)</label><input type="number" value="40"></div>
+      <div><label>เรทพื้นฐาน (฿/กล่อง)</label><input type="number" value="10"></div>
     </div>
+    <button class="btn btn-primary" style="margin-top:4px"><i class="ti ti-device-floppy"></i>บันทึกการตั้งค่า</button>
   </div>
 </div>
 
 </main>
-</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-item active" onclick="showPage('neworder',this)" id="bn-neworder">
+    <i class="ti ti-plus"></i><span>คีย์ออเดอร์</span>
+  </button>
+  <button class="bnav-item" onclick="showPage('orders',this)" id="bn-orders">
+    <i class="ti ti-list"></i><span>ออเดอร์</span>
+  </button>
+  <button class="bnav-item" onclick="showPage('mycomm',this)" id="bn-mycomm">
+    <i class="ti ti-coin"></i><span>คอมฯ ฉัน</span>
+  </button>
+  <button class="bnav-item bnav-owner" onclick="showPage('dashboard',this)" id="bn-dashboard">
+    <i class="ti ti-chart-bar"></i><span>Dashboard</span>
+  </button>
+  <button class="bnav-item bnav-owner" onclick="showPage('audit',this)" id="bn-audit">
+    <i class="ti ti-shield-check"></i><span>Audit</span>
+  </button>
+  <button class="bnav-item" onclick="showPage('settings',this)" id="bn-settings">
+    <i class="ti ti-settings"></i><span>ตั้งค่า</span>
+  </button>
+</nav>
 
 <script>
 const PRODUCTS={S:{price:190,gp:250,commS:15},M:{price:320,gp:420,commS:25},L:{price:490,gp:640,commS:40}};
 const DELIVERY=['grab','lm'];
-const DIRECT=['store','line','fb'];
 const GP_RATE=0.32;
 const BASE_COMM=10;
 
 function onChannelChange(){
   const ch=document.getElementById('channelSelect').value;
-  const isDelivery=DELIVERY.includes(ch);
   document.getElementById('slipSection').style.display=
     (ch==='line'||ch==='fb'||ch==='store')&&ch?'block':'none';
-  if(ch==='grab'||ch==='lm')document.getElementById('slipSection').style.display='none';
   calcSummary();
 }
-
-function onStaffChange(){calcSummary();}
 
 function calcSummary(){
   const ch=document.getElementById('channelSelect').value;
@@ -787,118 +596,80 @@ function calcSummary(){
   const qty=parseInt(document.getElementById('qtyInput').value)||1;
   const staff=document.getElementById('staffSelect').value;
   const promo=document.getElementById('promoInput').value.trim();
-  const status=document.getElementById('statusSelect').value;
-  const cancelled=status==='cancel';
-
-  if(!ch||!prod){
-    document.getElementById('s-price').textContent='฿0.00';
-    document.getElementById('s-net').textContent='฿0.00';
-    document.getElementById('commAmount').textContent='฿0';
-    document.getElementById('commDetail').textContent='เลือกสินค้าและช่องทางก่อน';
-    return;
-  }
-
+  const cancelled=document.getElementById('statusSelect').value==='cancel';
+  if(!ch||!prod){return;}
   const p=PRODUCTS[prod];
   const isDelivery=DELIVERY.includes(ch);
   const unitPrice=isDelivery?p.gp:p.price;
   const total=unitPrice*qty;
   const gpDeduct=isDelivery?Math.round(total*GP_RATE):0;
   const net=cancelled?0:(total-gpDeduct);
-
   document.getElementById('s-price').textContent='฿'+total.toLocaleString();
-  const gpRow=document.getElementById('s-gp-row');
-  gpRow.style.display=isDelivery?'flex':'none';
+  document.getElementById('s-gp-row').style.display=isDelivery?'flex':'none';
   document.getElementById('s-gp').textContent='-฿'+gpDeduct.toLocaleString();
   document.getElementById('s-net').textContent=cancelled?'฿0 (ยกเลิก)':'฿'+net.toLocaleString();
-
-  const chLabels={store:'หน้าร้าน',line:'LINE OA',fb:'Facebook',grab:'Grab',lm:'Lineman'};
-  const chClasses={store:'ch-store',line:'ch-line',fb:'ch-fb',grab:'ch-grab',lm:'ch-lm'};
+  const chL={store:'หน้าร้าน',line:'LINE OA',fb:'Facebook',grab:'Grab',lm:'Lineman'};
+  const chC={store:'ch-store',line:'ch-line',fb:'ch-fb',grab:'ch-grab',lm:'ch-lm'};
   const chEl=document.getElementById('s-channel');
-  chEl.textContent=chLabels[ch]||'—';
-  chEl.className='badge '+(chClasses[ch]||'badge-gray');
-
-  // Commission logic
-  const hasCode=promo.length>0||(staff!=='store'&&!isDelivery&&staff!=='store');
-  const isSpecialRate=(staff!=='store')&&(promo.length>0||true);
-  const commRate=isDelivery?BASE_COMM:(staff==='store'?BASE_COMM:(p.commS));
+  chEl.textContent=chL[ch]||'—';
+  chEl.className='badge '+(chC[ch]||'badge-gray');
   const isBase=isDelivery||staff==='store'||promo.length===0;
   const finalRate=isBase?BASE_COMM:p.commS;
   const commTotal=cancelled?0:(finalRate*qty);
-
   document.getElementById('commAmount').textContent='฿'+commTotal;
-  document.getElementById('commDetail').textContent=
-    cancelled?'ออเดอร์ยกเลิก — หักคอมฯ อัตโนมัติ':
-    (isBase?`เรทพื้นฐาน ฿${BASE_COMM}/กล่อง × ${qty} กล่อง`:
-    `เรทพิเศษ ฿${p.commS}/กล่อง × ${qty} กล่อง`);
-
-  const warnBox=document.getElementById('commWarnBox');
-  const warnText=document.getElementById('commWarnText');
+  document.getElementById('commDetail').textContent=cancelled?'ออเดอร์ยกเลิก — หักคอมฯ อัตโนมัติ':(isBase?`เรทพื้นฐาน ฿${BASE_COMM}/กล่อง × ${qty}`:`เรทพิเศษ ฿${p.commS}/กล่อง × ${qty}`);
+  const wb=document.getElementById('commWarnBox');
   if(isDelivery&&staff!=='store'){
-    warnBox.style.display='flex';
-    warnText.textContent='ออเดอร์จากแอปเดลิเวอรี่ → ระบบบังคับตัดเป็นของ STORE และใช้เรทพื้นฐาน ฿10/กล่อง';
+    wb.style.display='flex';
+    document.getElementById('commWarnText').textContent='Delivery → บังคับตัดเป็น STORE เรทพื้นฐาน ฿10/กล่อง';
     document.getElementById('staffSelect').value='store';
   } else if(staff!=='store'&&promo.length===0&&!isDelivery){
-    warnBox.style.display='flex';
-    warnText.textContent='ยังไม่มีรหัส Promo/ลิงก์ติดรหัส → ใช้เรทพื้นฐาน ฿10/กล่อง หากบันทึกโดยไม่กรอกรหัส';
-  } else {
-    warnBox.style.display='none';
-  }
-
-  document.getElementById('commBadge').innerHTML=
-    cancelled?'<span class="badge badge-red">ยกเลิก</span>':
-    (isBase?'<span class="badge badge-gray">พื้นฐาน</span>':
-    '<span class="badge badge-green">เรทพิเศษ ✓</span>');
+    wb.style.display='flex';
+    document.getElementById('commWarnText').textContent='ไม่มีรหัส Promo → ใช้เรทพื้นฐาน ฿10/กล่อง';
+  } else {wb.style.display='none';}
+  document.getElementById('commBadge').innerHTML=cancelled?'<span class="badge badge-red">ยกเลิก</span>':(isBase?'<span class="badge badge-gray">พื้นฐาน</span>':'<span class="badge badge-green">เรทพิเศษ ✓</span>');
 }
 
-function showPage(id){
+function clearForm(){
+  ['channelSelect','productSelect','statusSelect'].forEach(id=>{document.getElementById(id).selectedIndex=0;});
+  document.getElementById('qtyInput').value=1;
+  document.getElementById('promoInput').value='';
+  document.getElementById('slipSection').style.display='none';
+  document.getElementById('commWarnBox').style.display='none';
+  document.getElementById('s-price').textContent='฿0';
+  document.getElementById('s-net').textContent='฿0';
+  document.getElementById('s-gp-row').style.display='none';
+  document.getElementById('commAmount').textContent='฿0';
+  document.getElementById('commDetail').textContent='เลือกสินค้าและช่องทางก่อน';
+  document.getElementById('commBadge').innerHTML='';
+  document.getElementById('s-channel').textContent='—';
+  document.getElementById('s-channel').className='badge badge-gray';
+}
+
+function showPage(id,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+id)?.classList.add('active');
-  event?.currentTarget?.classList.add('active');
-  
-  // Check owner-only pages
-  const ownerPages=['dashboard','audit'];
+  document.querySelectorAll('.bnav-item').forEach(n=>n.classList.remove('active'));
   const isOwner=document.getElementById('roleOwner').classList.contains('active');
+  const ownerPages=['dashboard','audit'];
   if(ownerPages.includes(id)&&!isOwner){
-    document.getElementById('page-'+id).innerHTML=
-      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:16px">' +
-      '<div style="font-size:48px">🔒</div>' +
-      '<div style="font-size:18px;font-weight:600">หน้านี้ถูกล็อค</div>' +
-      '<div style="color:var(--text3);font-size:14px">มีสิทธิ์เข้าถึงได้เฉพาะบัญชีเจ้าของร้านเท่านั้น</div></div>';
+    document.getElementById('page-'+id).innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px"><div style="font-size:56px">🔒</div><div style="font-size:18px;font-weight:600">หน้านี้ถูกล็อค</div><div style="color:var(--text3);font-size:13px;text-align:center">มีสิทธิ์เข้าถึงได้เฉพาะ<br>บัญชีเจ้าของร้านเท่านั้น</div></div>';
   }
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
 }
 
 function switchRole(role){
   const isOwner=role==='owner';
   document.getElementById('roleOwner').classList.toggle('active',isOwner);
   document.getElementById('roleStaff').classList.toggle('active',!isOwner);
-  document.getElementById('roleBadge').textContent=isOwner?'Owner Mode':'Staff Mode';
+  document.getElementById('roleBadge').textContent=isOwner?'Owner':'Staff';
   document.getElementById('roleBadge').className='role-badge '+(isOwner?'role-owner':'role-staff');
-  
-  // Show/hide owner nav items
-  document.getElementById('navDash').style.display=isOwner?'flex':'none';
-  document.getElementById('navAudit').style.display=isOwner?'flex':'none';
-  
-  // Cost field locks
-  document.querySelectorAll('.lock-overlay').forEach(el=>{
-    el.style.display=isOwner?'none':'flex';
-  });
+  document.querySelectorAll('.bnav-owner').forEach(el=>{el.style.display=isOwner?'flex':'none';});
+  document.querySelectorAll('[id^="lock"]').forEach(el=>{el.style.display=isOwner?'none':'flex';});
 }
 
-function saveOrder(){
-  const ch=document.getElementById('channelSelect').value;
-  const prod=document.getElementById('productSelect').value;
-  if(!ch||!prod){alert('กรุณาเลือกช่องทางและสินค้าก่อนบันทึก');return;}
-  
-  const msg=document.createElement('div');
-  msg.style.cssText='position:fixed;top:70px;right:20px;background:#166534;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2)';
-  msg.innerHTML='<i class="ti ti-check" style="font-size:16px"></i> บันทึกออเดอร์สำเร็จ · บันทึก Audit Log แล้ว';
-  document.body.appendChild(msg);
-  setTimeout(()=>msg.remove(),3000);
-}
-
-// Init
 switchRole('owner');
+document.getElementById('bn-neworder').classList.add('active');
 </script>
 </body>
 </html>
